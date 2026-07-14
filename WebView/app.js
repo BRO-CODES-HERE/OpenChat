@@ -22,7 +22,7 @@ function detectAndSetupDownload() {
         iconClass = "fa-brands fa-windows";
     } else if (platform.indexOf("Mac") !== -1 || userAgent.indexOf("Macintosh") !== -1) {
         detectedOS = "macOS (Apple Silicon / Intel)";
-        downloadPath = "../OpenChat-Mac";
+        downloadPath = "../OpenChat-Mac.zip";
         iconClass = "fa-brands fa-apple";
     } else if (platform.indexOf("Linux") !== -1 || userAgent.indexOf("Linux") !== -1) {
         detectedOS = "Linux (Binary)";
