@@ -59,6 +59,9 @@ func (id *Identity) HostPublicKey() ssh.PublicKey {
 }
 
 func configDir() (string, error) {
+	if envDir := os.Getenv("CHATSSH_HOME"); envDir != "" {
+		return envDir, nil
+	}
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err

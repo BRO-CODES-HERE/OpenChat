@@ -13,7 +13,8 @@ import (
 var (
 	titleStyle = lipgloss.NewStyle().
 			Bold(true).
-			Foreground(lipgloss.Color("205")).
+			Foreground(lipgloss.Color("255")).
+			Background(lipgloss.Color("62")).
 			Padding(0, 1)
 
 	feedStyle = lipgloss.NewStyle().
@@ -26,16 +27,37 @@ var (
 			BorderForeground(lipgloss.Color("86")).
 			Padding(0, 1)
 
-	statusStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("241"))
 
-	msgStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("252"))
 
-	selfStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("86")).
-			Bold(true)
+	userColors = []string{
+		"197", // Vibrant pink-red
+		"203", // Bright red-orange
+		"208", // Bright orange
+		"214", // Gold/yellow
+		"220", // Warm yellow
+		"118", // Lime green
+		"76",  // Bright green
+		"46",  // Mint green
+		"43",  // Teal
+		"39",  // Sky blue
+		"33",  // Royal blue
+		"99",  // Vibrant purple/indigo
+		"135", // Lavender/violet
+		"213", // Hot pink
+	}
 )
+
+func getUsernameStyle(username string) lipgloss.Style {
+	if username == "system" {
+		return lipgloss.NewStyle().Foreground(lipgloss.Color("220")).Italic(true)
+	}
+	var hash int
+	for _, char := range username {
+		hash += int(char)
+	}
+	color := userColors[hash%len(userColors)]
+	return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true)
+}
 
 // Config configures the chat TUI.
 type Config struct {
@@ -57,16 +79,18 @@ type Model struct {
 	quitting  bool
 	verifyMsg string
 	awaiting  bool
+	sub       <-chan chat.Message
 }
 
 type msgReceived struct{ msg chat.Message }
-type windowSizeMsg struct{ width, height int }
+
 
 // New creates a chat TUI model.
 func New(cfg Config) Model {
 	m := Model{
 		cfg:      cfg,
 		messages: cfg.Hub.Messages(),
+		sub:      cfg.Hub.Subscribe(),
 	}
 	if cfg.VerifyScreen != "" {
 		m.verifyMsg = cfg.VerifyScreen
@@ -84,10 +108,8 @@ func (m Model) Init() tea.Cmd {
 }
 
 func (m Model) listen() tea.Cmd {
-	hub := m.cfg.Hub
 	return func() tea.Msg {
-		ch := hub.Subscribe()
-		msg := <-ch
+		msg := <-m.sub
 		return msgReceived{msg}
 	}
 }
@@ -134,8 +156,9 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.input = ""
 			}
 		case "backspace":
-			if len(m.input) > 0 {
-				m.input = m.input[:len(m.input)-1]
+			runes := []rune(m.input)
+			if len(runes) > 0 {
+				m.input = string(runes[:len(runes)-1])
 			}
 		default:
 			if len(msg.Runes) > 0 {
@@ -173,29 +196,101 @@ func (m Model) View() string {
 	if len(m.messages) > feedHeight {
 		start = len(m.messages) - feedHeight
 	}
+
+	tsStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+	sepStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
+	msgContentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("253"))
+
 	for _, msg := range m.messages[start:] {
 		ts := msg.Timestamp.Format("15:04:05")
-		style := msgStyle
-		if msg.Sender == m.cfg.LocalUser {
-			style = selfStyle
+		tsStr := tsStyle.Render("[" + ts + "]")
+
+		if msg.Sender == "system" {
+			sysContent := lipgloss.NewStyle().Foreground(lipgloss.Color("246")).Italic(true).Render("★ " + msg.Content)
+			lines = append(lines, fmt.Sprintf("%s  %s", tsStr, sysContent))
+			continue
 		}
-		lines = append(lines, style.Render(fmt.Sprintf("[%s] %s: %s", ts, msg.Sender, msg.Content)))
+
+		senderStyle := getUsernameStyle(msg.Sender)
+		if msg.Sender == m.cfg.LocalUser {
+			senderStyle = senderStyle.Underline(true)
+		}
+		senderStr := senderStyle.Render(msg.Sender)
+		separator := sepStyle.Render("│")
+		contentStr := msgContentStyle.Render(msg.Content)
+
+		lines = append(lines, fmt.Sprintf("%s  %s %s %s", tsStr, senderStr, separator, contentStr))
 	}
 	if len(lines) == 0 {
-		lines = append(lines, statusStyle.Render("No messages yet. Type below and press Enter."))
+		lines = append(lines, lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render("No messages yet. Type below and press Enter."))
 	}
 
-	title := titleStyle.Render(m.cfg.Title)
+	// Render title with full width and a nice emoji icon
+	titleStr := titleStyle.Width(m.width).Render(" 💬  " + m.cfg.Title)
+
 	feed := feedStyle.
 		Width(m.width - 4).
 		Height(feedHeight).
 		Render(strings.Join(lines, "\n"))
+
+	// Format input box with placeholder text if empty
+	var inputVal string
+	if m.input == "" {
+		inputVal = lipgloss.NewStyle().Foreground(lipgloss.Color("240")).Render("Type a message... (Esc to quit)")
+	} else {
+		inputVal = m.input + "█"
+	}
 	input := inputStyle.
 		Width(m.width - 4).
-		Render("> " + m.input + "█")
-	status := statusStyle.Render(m.cfg.Status)
+		Render("> " + inputVal)
 
-	return fmt.Sprintf("%s\n%s\n%s\n%s", title, feed, input, status)
+	// Format status bar as powerline-style segmented pills
+	var statusBlocks []string
+	segments := strings.Split(m.cfg.Status, " | ")
+	for _, seg := range segments {
+		seg = strings.TrimSpace(seg)
+		if seg == "" {
+			continue
+		}
+
+		var style lipgloss.Style
+		if strings.Contains(seg, "Ghost Mode") {
+			style = lipgloss.NewStyle().
+				Background(lipgloss.Color("208")). // Amber/orange
+				Foreground(lipgloss.Color("16")).
+				Bold(true).
+				Padding(0, 1)
+		} else if strings.Contains(seg, "Local Encrypted") {
+			style = lipgloss.NewStyle().
+				Background(lipgloss.Color("76")).  // Vibrant green
+				Foreground(lipgloss.Color("16")).
+				Bold(true).
+				Padding(0, 1)
+		} else if strings.HasPrefix(seg, "key:") {
+			style = lipgloss.NewStyle().
+				Background(lipgloss.Color("33")).  // Blue
+				Foreground(lipgloss.Color("255")).
+				Bold(true).
+				Padding(0, 1)
+		} else if strings.HasPrefix(seg, "peers:") {
+			style = lipgloss.NewStyle().
+				Background(lipgloss.Color("99")).  // Purple
+				Foreground(lipgloss.Color("255")).
+				Bold(true).
+				Padding(0, 1)
+		} else {
+			// address/listen/p2p info
+			style = lipgloss.NewStyle().
+				Background(lipgloss.Color("237")). // Dark gray
+				Foreground(lipgloss.Color("86")).  // Cyan
+				Bold(true).
+				Padding(0, 1)
+		}
+		statusBlocks = append(statusBlocks, style.Render(seg))
+	}
+	status := lipgloss.JoinHorizontal(lipgloss.Top, statusBlocks...)
+
+	return fmt.Sprintf("%s\n%s\n%s\n%s", titleStr, feed, input, status)
 }
 
 // Run starts the Bubble Tea program.

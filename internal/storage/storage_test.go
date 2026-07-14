@@ -8,6 +8,7 @@ import (
 )
 
 func TestGhostMode(t *testing.T) {
+	t.Setenv("CHATSSH_HOME", t.TempDir())
 	store, err := storage.Open(storage.ModeGhost, "")
 	if err != nil {
 		t.Fatal(err)
@@ -29,6 +30,7 @@ func TestGhostMode(t *testing.T) {
 }
 
 func TestLocalEncryptedStorage(t *testing.T) {
+	t.Setenv("CHATSSH_HOME", t.TempDir())
 	store, err := storage.Open(storage.ModeLocal, "test-passphrase")
 	if err != nil {
 		t.Fatal(err)

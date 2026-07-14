@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -153,22 +154,62 @@ func (n *Node) DialPeerByIP(ctx context.Context, ip string, port int) (net.Conn,
 	if err != nil {
 		return nil, err
 	}
-	addrInfo := peer.AddrInfo{Addrs: []multiaddr.Multiaddr{ma}}
-	if err := n.Host.Connect(ctx, addrInfo); err != nil {
-		// Fallback: try relayed connection via known peers
-		for _, p := range n.Host.Network().Peers() {
-			stream, err := n.Host.NewStream(ctx, p, ProtocolID)
-			if err == nil {
-				return NewStreamConn(stream), nil
-			}
-		}
+
+	// Generate a dummy Peer ID so we can establish a connection handshake and extract the actual Peer ID
+	priv, _, err := crypto.GenerateEd25519Key(nil)
+	if err != nil {
 		return nil, err
 	}
-	peers := n.Host.Network().Peers()
-	if len(peers) == 0 {
-		return nil, fmt.Errorf("no peers found at %s", ip)
+	dummyID, err := peer.IDFromPrivateKey(priv)
+	if err != nil {
+		return nil, err
 	}
-	stream, err := n.Host.NewStream(ctx, peers[0], ProtocolID)
+
+	addrInfo := peer.AddrInfo{
+		ID:    dummyID,
+		Addrs: []multiaddr.Multiaddr{ma},
+	}
+
+	var actualID peer.ID
+	if err := n.Host.Connect(ctx, addrInfo); err != nil {
+		errStr := err.Error()
+		if strings.Contains(errStr, "peer id mismatch") {
+			idx := strings.Index(errStr, "remote key matches ")
+			if idx != -1 {
+				actualIDStr := errStr[idx+len("remote key matches "):]
+				actualIDStr = strings.TrimSpace(actualIDStr)
+				actualIDStr = strings.Trim(actualIDStr, ".\"`'{}()")
+				decoded, err := peer.Decode(actualIDStr)
+				if err == nil {
+					actualID = decoded
+				}
+			}
+		}
+		if actualID == "" {
+			// Fallback: try relayed connection via known peers
+			for _, p := range n.Host.Network().Peers() {
+				stream, err := n.Host.NewStream(ctx, p, ProtocolID)
+				if err == nil {
+					return NewStreamConn(stream), nil
+				}
+			}
+			return nil, err
+		}
+	} else {
+		// In the extremely unlikely event that dummyID actually matches the target's ID
+		actualID = dummyID
+	}
+
+	// Now connect using the correct, discovered Peer ID
+	actualAddrInfo := peer.AddrInfo{
+		ID:    actualID,
+		Addrs: []multiaddr.Multiaddr{ma},
+	}
+	if err := n.Host.Connect(ctx, actualAddrInfo); err != nil {
+		return nil, err
+	}
+
+	stream, err := n.Host.NewStream(ctx, actualID, ProtocolID)
 	if err != nil {
 		return nil, err
 	}

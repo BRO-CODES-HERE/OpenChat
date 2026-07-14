@@ -148,6 +148,7 @@ func (a *App) startServer(ctx context.Context) error {
 		a.addCleanup(node.Close)
 
 		ln := node.ListenSSH()
+		a.addCleanup(ln.Close)
 		go func() {
 			_ = srv.Serve(ln)
 		}()
@@ -229,13 +230,48 @@ func (a *App) buildStatus() string {
 			parts = append(parts, "addr:"+addrs[0])
 		}
 	} else if a.server != nil {
-		parts = append(parts, "listen:"+a.server.Addr())
+		addr := a.server.Addr()
+		if strings.HasPrefix(addr, "[::]") || strings.HasPrefix(addr, "0.0.0.0") || strings.HasPrefix(addr, ":") {
+			localIPs := getLocalIPs()
+			if len(localIPs) > 0 {
+				var listenParts []string
+				_, portStr, _ := net.SplitHostPort(addr)
+				if portStr == "" {
+					parts := strings.Split(addr, ":")
+					portStr = parts[len(parts)-1]
+				}
+				for _, ip := range localIPs {
+					listenParts = append(listenParts, fmt.Sprintf("%s:%s", ip, portStr))
+				}
+				parts = append(parts, "listen:"+strings.Join(listenParts, ", "))
+			} else {
+				parts = append(parts, "listen:"+addr)
+			}
+		} else {
+			parts = append(parts, "listen:"+addr)
+		}
 	}
 
 	if a.roomHost != nil {
 		parts = append(parts, fmt.Sprintf("peers:%d", a.roomHost.ClientCount()))
 	}
 	return strings.Join(parts, " | ")
+}
+
+func getLocalIPs() []string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return nil
+	}
+	var ips []string
+	for _, addr := range addrs {
+		if ipnet, ok := addr.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				ips = append(ips, ipnet.IP.String())
+			}
+		}
+	}
+	return ips
 }
 
 func splitHostPort(addr string) (string, int) {
