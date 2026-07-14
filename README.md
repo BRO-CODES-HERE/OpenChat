@@ -12,9 +12,9 @@ OpenChat (originally ChatSSH) is a secure, terminal-based, decentralized chat ap
 
 Get the precompiled executable directly for your operating system:
 
-* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/OpenChat-Win.exe)
-* 🍎 **macOS:** [Download OpenChat-Mac (Apple Silicon & Intel)](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/OpenChat-Mac)
-* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/OpenChat-linux)
+* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Win.exe)
+* 🍎 **macOS:** [Download OpenChat-Mac (Apple Silicon & Intel)](https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac)
+* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-linux)
 
 ---
 
@@ -22,10 +22,10 @@ Get the precompiled executable directly for your operating system:
 
 Learn more about using and configuring OpenChat:
 
-* 🚀 **[Quick Start Guide](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/GetStarted.md)** — Step-by-step instructions on starting your first server and connecting clients.
-* ⚙️ **[CLI Flags Reference](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/Flags.md)** — Complete configuration index for running custom settings via command-line arguments.
-* 📐 **[System Design Document](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/DesignSystem/ChatSSH.md)** — Architectural layout, wire frames, connection models, and cryptographic details.
-* 🔧 **[Security & Debugging Audit](file:///c:/Users/hdk99/Desktop/Bro's_Git/OpenChat/Report01.md)** — Historical overview of issues resolved during security hardening (UTF-8, goroutine leaks, handshake retry logic).
+* 🚀 **[Quick Start Guide](GetStarted.md)** — Step-by-step instructions on starting your first server and connecting clients.
+* ⚙️ **[CLI Flags Reference](Flags.md)** — Complete configuration index for running custom settings via command-line arguments.
+* 📐 **[System Design Document](DesignSystem/ChatSSH.md)** — Architectural layout, wire frames, connection models, and cryptographic details.
+* 🔧 **[Security & Debugging Audit](Report01.md)** — Historical overview of issues resolved during security hardening (UTF-8, goroutine leaks, handshake retry logic).
 
 ---
 

@@ -13,20 +13,20 @@ function detectAndSetupDownload() {
     const downloadBtn = document.getElementById("primary-download-btn");
     
     let detectedOS = "Windows"; // Fallback default
-    let downloadPath = "../OpenChat-Win.exe";
+    let downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Win.exe";
     let iconClass = "fa-brands fa-windows";
 
     if (platform.indexOf("Win") !== -1) {
         detectedOS = "Windows (.exe)";
-        downloadPath = "../OpenChat-Win.exe";
+        downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Win.exe";
         iconClass = "fa-brands fa-windows";
     } else if (platform.indexOf("Mac") !== -1 || userAgent.indexOf("Macintosh") !== -1) {
         detectedOS = "macOS (Apple Silicon / Intel)";
-        downloadPath = "../OpenChat-Mac";
+        downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac";
         iconClass = "fa-brands fa-apple";
     } else if (platform.indexOf("Linux") !== -1 || userAgent.indexOf("Linux") !== -1) {
         detectedOS = "Linux (Binary)";
-        downloadPath = "../OpenChat-linux";
+        downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-linux";
         iconClass = "fa-brands fa-linux";
     }
 
