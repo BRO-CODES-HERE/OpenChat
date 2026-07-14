@@ -1,21 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OpenChat — Secure Terminal Chat over P2P SSH</title>
-    <meta name="description" content="A premium terminal chat application using SSH authentication and go-libp2p NAT hole punching. Choose local encrypted storage or volatile Ghost Mode.">
+    <meta name="description"
+        content="A premium terminal chat application using SSH authentication and go-libp2p NAT hole punching. Choose local encrypted storage or volatile Ghost Mode.">
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap"
+        rel="stylesheet">
     <!-- Style Sheet -->
     <link rel="stylesheet" href="style.css">
     <!-- FontAwesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="Open_chat_favicon.png">
-    
+
 </head>
+
 <body>
     <!-- Three.js Canvas Background -->
     <canvas id="p2p-canvas"></canvas>
@@ -32,7 +37,8 @@
                     <li><a href="#features">Features</a></li>
                     <li><a href="#modes">Storage Modes</a></li>
                     <li><a href="#quickstart">Quickstart</a></li>
-                    <li><a href="https://github.com/BRO-CODES-HERE/OpenChat" target="_blank" class="nav-github-btn"><i class="fa-brands fa-github"></i> GitHub</a></li>
+                    <li><a href="https://github.com/BRO-CODES-HERE/OpenChat" target="_blank" class="nav-github-btn"><i
+                                class="fa-brands fa-github"></i> GitHub</a></li>
                 </ul>
             </nav>
         </div>
@@ -46,8 +52,9 @@
                 <span class="badge-text">v1.0.2 Now Available</span>
             </div>
             <h1 class="hero-title">Secure Chat directly from your <span class="highlight">Terminal</span></h1>
-            <p class="hero-subtitle">An elegant, terminal-based messaging tool powered by SSH cryptographic handshakes and libp2p NAT traversal. Connect securely with friends across firewalls—no setup required.</p>
-            
+            <p class="hero-subtitle">An elegant, terminal-based messaging tool powered by SSH cryptographic handshakes
+                and libp2p NAT traversal. Connect securely with friends across firewalls—no setup required.</p>
+
             <div class="download-container">
                 <!-- OS Dynamic Download Button -->
                 <a href="#" id="primary-download-btn" class="glow-button">
@@ -57,22 +64,23 @@
                         <span id="detected-os" class="btn-main">Detecting OS...</span>
                     </div>
                 </a>
-                
+
                 <p class="download-label">Or download for other platforms:</p>
                 <div class="platforms-grid">
-                    <a href="../OpenChat-Win.exe" class="platform-link" download>
+                    <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Win.exe" class="platform-link" download>
                         <i class="fa-brands fa-windows"></i> Windows (.exe)
                     </a>
                     <a href="../OpenChat-Mac.zip" class="platform-link" download>
+                    <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac" class="platform-link" download>
                         <i class="fa-brands fa-apple"></i> macOS (Intel/M-series)
                     </a>
-                    <a href="../OpenChat-linux" class="platform-link" download>
+                    <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-linux" class="platform-link" download>
                         <i class="fa-brands fa-linux"></i> Linux
                     </a>
                 </div>
             </div>
         </div>
-        
+
         <!-- Interactive Mockup Terminal -->
         <div class="hero-mockup">
             <div class="terminal">
@@ -83,12 +91,20 @@
                     <span class="terminal-title">alice@chatssh:~</span>
                 </div>
                 <div class="terminal-body">
-                    <div class="term-line cmd-input"><span class="prompt">$</span> go run .\cmd\chatssh --mode server --user alice</div>
-                    <div class="term-line success">Identity created successfully. Host key fingerprint: key:99e9d188b2ab</div>
-                    <div class="term-line info">P2P Host listening on port 4001. Public key verification screen loaded.</div>
-                    <div class="term-line chat-msg"><span class="time">[09:17:31]</span> <span class="user self">alice</span> <span class="divider">│</span> Welcome to OpenChat! Secure P2P communication channel active.</div>
-                    <div class="term-line chat-msg"><span class="time">[09:17:45]</span> <span class="user system">★ system</span> <span class="divider">│</span> bob joined the room</div>
-                    <div class="term-line chat-msg"><span class="time">[09:18:02]</span> <span class="user peer">bob</span> <span class="divider">│</span> Hey Alice! The terminal UI looks incredible. Let's test the encrypted history.</div>
+                    <div class="term-line cmd-input"><span class="prompt">$</span> go run .\cmd\chatssh --mode server
+                        --user alice</div>
+                    <div class="term-line success">Identity created successfully. Host key fingerprint: key:99e9d188b2ab
+                    </div>
+                    <div class="term-line info">P2P Host listening on port 4001. Public key verification screen loaded.
+                    </div>
+                    <div class="term-line chat-msg"><span class="time">[09:17:31]</span> <span
+                            class="user self">alice</span> <span class="divider">│</span> Welcome to OpenChat! Secure
+                        P2P communication channel active.</div>
+                    <div class="term-line chat-msg"><span class="time">[09:17:45]</span> <span class="user system">★
+                            system</span> <span class="divider">│</span> bob joined the room</div>
+                    <div class="term-line chat-msg"><span class="time">[09:18:02]</span> <span
+                            class="user peer">bob</span> <span class="divider">│</span> Hey Alice! The terminal UI looks
+                        incredible. Let's test the encrypted history.</div>
                     <div class="term-line status-bar">
                         <span class="status-pill green">Local Encrypted Storage</span>
                         <span class="status-pill blue">key:99e9d188b2ab</span>
@@ -105,32 +121,38 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Decentralized & Encrypted by Default</h2>
-                <p class="section-desc">OpenChat stands on three core technical pillars designed to provide modern communication without corporate logging servers.</p>
+                <p class="section-desc">OpenChat stands on three core technical pillars designed to provide modern
+                    communication without corporate logging servers.</p>
             </div>
-            
+
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon-box cyan-glow">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <h3>SSH Cryptographic Security</h3>
-                    <p>Uses <code>golang.org/x/crypto/ssh</code> for credential verification. Complete with visual host-key fingerprint checks (emoji and randomart) to prevent Man-in-the-Middle (MITM) attacks.</p>
+                    <p>Uses <code>golang.org/x/crypto/ssh</code> for credential verification. Complete with visual
+                        host-key fingerprint checks (emoji and randomart) to prevent Man-in-the-Middle (MITM) attacks.
+                    </p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon-box magenta-glow">
                         <i class="fa-solid fa-circle-nodes"></i>
                     </div>
                     <h3>libp2p NAT hole punching</h3>
-                    <p>Leverages <code>go-libp2p</code> transport. AutoNAT and DCUtR protocols attempt direct hole punching behind home routers, falling back to secure Circuit Relays if direct access fails.</p>
+                    <p>Leverages <code>go-libp2p</code> transport. AutoNAT and DCUtR protocols attempt direct hole
+                        punching behind home routers, falling back to secure Circuit Relays if direct access fails.</p>
                 </div>
-                
+
                 <div class="feature-card">
                     <div class="feature-icon-box purple-glow">
                         <i class="fa-solid fa-cubes"></i>
                     </div>
                     <h3>Bubble Tea TUI</h3>
-                    <p>A reactive, modern split-screen terminal interface built with <code>charmbracelet/bubbletea</code> and styled dynamically with <code>lipgloss</code>, offering standard cursor controls and layout scaling.</p>
+                    <p>A reactive, modern split-screen terminal interface built with
+                        <code>charmbracelet/bubbletea</code> and styled dynamically with <code>lipgloss</code>, offering
+                        standard cursor controls and layout scaling.</p>
                 </div>
             </div>
         </div>
@@ -143,7 +165,7 @@
                 <h2 class="section-title">Flexible Storage Configurations</h2>
                 <p class="section-desc">Choose how your data is handled every time you launch the application.</p>
             </div>
-            
+
             <div class="modes-split">
                 <div class="mode-box glass-panel green-hover">
                     <div class="mode-header">
@@ -151,21 +173,23 @@
                         <i class="fa-solid fa-database mode-icon icon-green"></i>
                     </div>
                     <h3>Local Encrypted Storage</h3>
-                    <p>Persists chat messages inside an encrypted SQLite database using AES-GCM (passphrase-derived key). Perfect for retaining history securely across machine reboots.</p>
+                    <p>Persists chat messages inside an encrypted SQLite database using AES-GCM (passphrase-derived
+                        key). Perfect for retaining history securely across machine reboots.</p>
                     <ul class="mode-list">
                         <li><i class="fa-solid fa-check icon-green"></i> SQLite local backend</li>
                         <li><i class="fa-solid fa-check icon-green"></i> Key derived via PBKDF2</li>
                         <li><i class="fa-solid fa-check icon-green"></i> Decrypt history on launch</li>
                     </ul>
                 </div>
-                
+
                 <div class="mode-box glass-panel orange-hover">
                     <div class="mode-header">
                         <span class="mode-badge orange">EPHEMERAL</span>
                         <i class="fa-solid fa-ghost mode-icon icon-orange"></i>
                     </div>
                     <h3>Ghost Mode</h3>
-                    <p>For high-privacy environments. Holds all messages strictly in volatile memory (RAM). When you exit, the memory is thoroughly scrubbed, leaving no trace on disk.</p>
+                    <p>For high-privacy environments. Holds all messages strictly in volatile memory (RAM). When you
+                        exit, the memory is thoroughly scrubbed, leaving no trace on disk.</p>
                     <ul class="mode-list">
                         <li><i class="fa-solid fa-check icon-orange"></i> RAM-only cache</li>
                         <li><i class="fa-solid fa-check icon-orange"></i> Auto-scrubbing on exit</li>
@@ -181,9 +205,10 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">How to Connect</h2>
-                <p class="section-desc">Get started in seconds. One person hosts the room, and the other connects directly.</p>
+                <p class="section-desc">Get started in seconds. One person hosts the room, and the other connects
+                    directly.</p>
             </div>
-            
+
             <div class="quickstart-split">
                 <div class="quickstart-box">
                     <h4>1. Start a Room (Host)</h4>
@@ -194,7 +219,7 @@
                     </div>
                     <span class="tip">Check your status bar at the bottom for your local IP address!</span>
                 </div>
-                
+
                 <div class="quickstart-box">
                     <h4>2. Connect (Client)</h4>
                     <p>Dial the server using the host's IP address (e.g. 172.29.160.1):</p>
@@ -212,12 +237,14 @@
     <section class="contribute">
         <div class="container glass-panel purple-glow-panel">
             <h2>Open Source & Open to Contributions</h2>
-            <p>OpenChat is completely open source under active development. Read the full CLI configurations in our documentation, build binaries for custom CPU architectures, or submit pull requests on GitHub.</p>
+            <p>OpenChat is completely open source under active development. Read the full CLI configurations in our
+                documentation, build binaries for custom CPU architectures, or submit pull requests on GitHub.</p>
             <div class="btn-row">
                 <a href="https://github.com/BRO-CODES-HERE/OpenChat" target="_blank" class="glow-button inline-btn">
                     <i class="fa-brands fa-github"></i> Visit Repository
                 </a>
-                <a href="https://github.com/BRO-CODES-HERE/OpenChat/blob/main/GetStarted.md" target="_blank" class="secondary-btn">
+                <a href="https://github.com/BRO-CODES-HERE/OpenChat/blob/main/GetStarted.md" target="_blank"
+                    class="secondary-btn">
                     Documentation <i class="fa-solid fa-arrow-right"></i>
                 </a>
             </div>
@@ -229,8 +256,10 @@
         <div class="footer-container">
             <p>&copy; 2026 OpenChat Project. Made by developer communities for terminal lovers.</p>
             <div class="footer-links">
-                <a href="https://github.com/BRO-CODES-HERE/OpenChat" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
-                <a href="https://github.com/BRO-CODES-HERE/OpenChat/issues" target="_blank"><i class="fa-solid fa-bug"></i> Issues</a>
+                <a href="https://github.com/BRO-CODES-HERE/OpenChat" target="_blank"><i class="fa-brands fa-github"></i>
+                    GitHub</a>
+                <a href="https://github.com/BRO-CODES-HERE/OpenChat/issues" target="_blank"><i
+                        class="fa-solid fa-bug"></i> Issues</a>
             </div>
         </div>
     </footer>
@@ -240,4 +269,5 @@
     <!-- App JavaScript -->
     <script src="app.js"></script>
 </body>
+
 </html>
