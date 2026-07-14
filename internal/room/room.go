@@ -44,6 +44,8 @@ func (h *Host) AddClient(id string, conn io.ReadWriteCloser) {
 	h.clients[id] = &Client{ID: id, Conn: conn}
 	h.mu.Unlock()
 
+	h.updateAndBroadcastCount()
+
 	go h.readLoop(id, conn)
 }
 
@@ -55,6 +57,18 @@ func (h *Host) RemoveClient(id string) {
 		delete(h.clients, id)
 	}
 	h.mu.Unlock()
+
+	h.updateAndBroadcastCount()
+}
+
+func (h *Host) updateAndBroadcastCount() {
+	count := h.ClientCount() + 1
+	countMsg := chat.Message{
+		Sender:  "system:count",
+		Content: fmt.Sprintf("%d", count),
+	}
+	h.hub.Publish(countMsg)
+	h.Broadcast(countMsg, "")
 }
 
 func (h *Host) readLoop(id string, conn io.ReadWriteCloser) {
@@ -96,16 +110,20 @@ func (h *Host) ClientCount() int {
 
 // AnnounceJoin notifies the room of a new participant.
 func (h *Host) AnnounceJoin(id string) {
-	h.hub.Publish(chat.Message{
+	msg := chat.Message{
 		Sender:  "system",
-		Content: fmt.Sprintf("%s joined the room", id),
-	})
+		Content: fmt.Sprintf("hey every body meet '%s' joined chat now", id),
+	}
+	h.hub.Publish(msg)
+	h.Broadcast(msg, "")
 }
 
 // AnnounceLeave notifies the room when a peer disconnects.
 func (h *Host) AnnounceLeave(id string) {
-	h.hub.Publish(chat.Message{
+	msg := chat.Message{
 		Sender:  "system",
 		Content: fmt.Sprintf("%s left the room", id),
-	})
+	}
+	h.hub.Publish(msg)
+	h.Broadcast(msg, "")
 }

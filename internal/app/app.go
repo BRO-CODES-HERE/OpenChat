@@ -124,6 +124,10 @@ func (a *App) startServer(ctx context.Context) error {
 		}
 		roomHost = room.NewHost(name, a.hub)
 		a.roomHost = roomHost
+		a.hub.Publish(chat.Message{
+			Sender:  "system:count",
+			Content: "1",
+		})
 	}
 
 	srv := sshserver.New(sshserver.Config{
@@ -252,9 +256,6 @@ func (a *App) buildStatus() string {
 		}
 	}
 
-	if a.roomHost != nil {
-		parts = append(parts, fmt.Sprintf("peers:%d", a.roomHost.ClientCount()))
-	}
 	return strings.Join(parts, " | ")
 }
 

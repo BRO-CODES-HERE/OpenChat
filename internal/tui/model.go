@@ -80,6 +80,7 @@ type Model struct {
 	verifyMsg string
 	awaiting  bool
 	sub       <-chan chat.Message
+	peerCount int
 }
 
 type msgReceived struct{ msg chat.Message }
@@ -123,6 +124,13 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case msgReceived:
+		if msg.msg.Sender == "system:count" {
+			var count int
+			if _, err := fmt.Sscanf(msg.msg.Content, "%d", &count); err == nil {
+				m.peerCount = count
+			}
+			return m, m.listen()
+		}
 		m.messages = append(m.messages, msg.msg)
 		return m, m.listen()
 
@@ -249,7 +257,7 @@ func (m Model) View() string {
 	segments := strings.Split(m.cfg.Status, " | ")
 	for _, seg := range segments {
 		seg = strings.TrimSpace(seg)
-		if seg == "" {
+		if seg == "" || strings.HasPrefix(seg, "peers:") {
 			continue
 		}
 
@@ -272,12 +280,6 @@ func (m Model) View() string {
 				Foreground(lipgloss.Color("255")).
 				Bold(true).
 				Padding(0, 1)
-		} else if strings.HasPrefix(seg, "peers:") {
-			style = lipgloss.NewStyle().
-				Background(lipgloss.Color("99")).  // Purple
-				Foreground(lipgloss.Color("255")).
-				Bold(true).
-				Padding(0, 1)
 		} else {
 			// address/listen/p2p info
 			style = lipgloss.NewStyle().
@@ -287,6 +289,15 @@ func (m Model) View() string {
 				Padding(0, 1)
 		}
 		statusBlocks = append(statusBlocks, style.Render(seg))
+	}
+
+	if m.peerCount > 0 {
+		style := lipgloss.NewStyle().
+			Background(lipgloss.Color("99")).  // Purple
+			Foreground(lipgloss.Color("255")).
+			Bold(true).
+			Padding(0, 1)
+		statusBlocks = append(statusBlocks, style.Render(fmt.Sprintf("peers:%d", m.peerCount)))
 	}
 	status := lipgloss.JoinHorizontal(lipgloss.Top, statusBlocks...)
 

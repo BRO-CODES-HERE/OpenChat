@@ -10,6 +10,22 @@ import (
 )
 
 func main() {
+	if len(os.Args) == 1 {
+		opts, err := app.RunWizard()
+		if err != nil {
+			if err == app.ErrWizardAborted {
+				os.Exit(0)
+			}
+			fmt.Fprintf(os.Stderr, "setup wizard error: %v\n", err)
+			os.Exit(1)
+		}
+		if err := app.Run(opts); err != nil {
+			fmt.Fprintf(os.Stderr, "chatssh: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+
 	mode := flag.String("mode", "server", "Run mode: server or connect")
 	addr := flag.String("addr", ":2222", "Listen address (server) or remote host:port (connect)")
 	connect := flag.String("connect", "", "Shorthand to connect to host:port")

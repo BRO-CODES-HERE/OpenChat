@@ -56,7 +56,9 @@ func (h *Hub) Publish(msg Message) {
 		msg.Timestamp = time.Now()
 	}
 	h.mu.Lock()
-	h.messages = append(h.messages, msg)
+	if msg.Sender != "system:count" {
+		h.messages = append(h.messages, msg)
+	}
 	subs := append([]chan Message(nil), h.subs...)
 	h.mu.Unlock()
 
