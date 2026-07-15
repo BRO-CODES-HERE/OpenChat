@@ -262,13 +262,13 @@ func (m Model) View() string {
 		}
 
 		var style lipgloss.Style
-		if strings.Contains(seg, "Ghost Mode") {
+		if strings.Contains(seg, "Ghost") {
 			style = lipgloss.NewStyle().
 				Background(lipgloss.Color("208")). // Amber/orange
 				Foreground(lipgloss.Color("16")).
 				Bold(true).
 				Padding(0, 1)
-		} else if strings.Contains(seg, "Local Encrypted") {
+		} else if strings.Contains(seg, "Encrypted") {
 			style = lipgloss.NewStyle().
 				Background(lipgloss.Color("76")).  // Vibrant green
 				Foreground(lipgloss.Color("16")).

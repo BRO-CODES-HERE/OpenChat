@@ -212,9 +212,9 @@ func (s *Store) Close() error {
 func ModeName(m Mode) string {
 	switch m {
 	case ModeGhost:
-		return "Ghost Mode (RAM only)"
+		return "Ghost"
 	case ModeLocal:
-		return "Local Encrypted Storage"
+		return "Encrypted"
 	default:
 		return "Unknown"
 	}

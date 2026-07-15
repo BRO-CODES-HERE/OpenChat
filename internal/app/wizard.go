@@ -202,6 +202,7 @@ func (m wizardModel) nextStep() (tea.Model, tea.Cmd) {
 
 	case stepAddress:
 		m.address = strings.TrimSpace(m.textVal)
+		m.address = strings.TrimSuffix(m.address, ":")
 		if m.address == "" {
 			m.address = "127.0.0.1:2222"
 		} else {
