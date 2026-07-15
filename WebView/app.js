@@ -13,20 +13,20 @@ function detectAndSetupDownload() {
     const downloadBtn = document.getElementById("primary-download-btn");
     
     let detectedOS = "Windows"; // Fallback default
-    let downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-Win.exe";
+    let downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-Win.exe";
     let iconClass = "fa-brands fa-windows";
 
     if (platform.indexOf("Win") !== -1) {
         detectedOS = "Windows (.exe)";
-        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-Win.exe";
+        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-Win.exe";
         iconClass = "fa-brands fa-windows";
     } else if (platform.indexOf("Mac") !== -1 || userAgent.indexOf("Macintosh") !== -1) {
         detectedOS = "macOS (Apple Silicon / Intel)";
-        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-Mac.zip";
+        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-Mac.zip";
         iconClass = "fa-brands fa-apple";
     } else if (platform.indexOf("Linux") !== -1 || userAgent.indexOf("Linux") !== -1) {
         detectedOS = "Linux (Binary)";
-        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-linux";
+        downloadPath = "https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-linux";
         iconClass = "fa-brands fa-linux";
     }
 
