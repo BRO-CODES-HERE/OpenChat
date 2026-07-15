@@ -6,9 +6,9 @@ import (
 	"os/user"
 	"strings"
 
+	"github.com/BRO-CODES-HERE/OpenChat/internal/storage"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/BRO-CODES-HERE/OpenChat/internal/storage"
 )
 
 var (
@@ -66,12 +66,12 @@ type wizardModel struct {
 	useP2P      bool
 	storageMode storage.Mode
 	passphrase  string
-	
+
 	// Input buffers
-	textVal     string
-	cursor      string
-	activeOpt   int // index of selected option in selection lists
-	aborted     bool
+	textVal   string
+	cursor    string
+	activeOpt int // index of selected option in selection lists
+	aborted   bool
 }
 
 func initialWizardModel() wizardModel {
@@ -128,29 +128,9 @@ func (m wizardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "down":
+		case "down", "j":
 			if !m.isTextInputStep() {
 				m.activeOpt = 1
-			}
-			return m, nil
-
-		case "k":
-			if !m.isTextInputStep() {
-				m.activeOpt = 0
-				return m, nil
-			}
-			if len(msg.Runes) > 0 {
-				m.textVal += string(msg.Runes)
-			}
-			return m, nil
-
-		case "j":
-			if !m.isTextInputStep() {
-				m.activeOpt = 1
-				return m, nil
-			}
-			if len(msg.Runes) > 0 {
-				m.textVal += string(msg.Runes)
 			}
 			return m, nil
 
@@ -248,13 +228,13 @@ func (m wizardModel) View() string {
 	case stepUsername:
 		content.WriteString("Step 1: Choose Display Name\n")
 		content.WriteString("Enter the username other participants will see in the chat room:\n\n")
-		content.WriteString(wizardInputStyle.Render(m.textVal + m.cursor) + "\n")
+		content.WriteString(wizardInputStyle.Render(m.textVal+m.cursor) + "\n")
 		content.WriteString(wizardHelpStyle.Render("Press Enter to continue • Esc to quit"))
 
 	case stepMode:
 		content.WriteString("Step 2: Choose Connection Mode\n")
 		content.WriteString("Select whether you want to host a new room or connect to an existing room:\n\n")
-		
+
 		optHost := "  [ ] Host a new Chat Room (Server)"
 		optJoin := "  [ ] Connect to an existing room (Client)"
 		if m.activeOpt == 0 {
@@ -264,14 +244,14 @@ func (m wizardModel) View() string {
 			optHost = wizardNormalOptionStyle.Render(optHost)
 			optJoin = wizardActiveOptionStyle.Render("  [▸] Connect to an existing room (Client)")
 		}
-		
+
 		content.WriteString(optHost + "\n" + optJoin + "\n")
 		content.WriteString(wizardHelpStyle.Render("Use Up/Down or Tab to navigate • Enter to select • Esc to quit"))
 
 	case stepAddress:
 		content.WriteString("Step 3: Enter Host Address\n")
 		content.WriteString("Enter the IP address and port of the room host (e.g. 192.168.1.100:2222):\n\n")
-		content.WriteString(wizardInputStyle.Render(m.textVal + m.cursor) + "\n")
+		content.WriteString(wizardInputStyle.Render(m.textVal+m.cursor) + "\n")
 		content.WriteString(wizardHelpStyle.Render("Press Enter to continue • Esc to quit"))
 
 	case stepP2P:
@@ -311,13 +291,13 @@ func (m wizardModel) View() string {
 	case stepPassphrase:
 		content.WriteString("Step 6: Set Database Passphrase\n")
 		content.WriteString("Provide a password to encrypt your local database logs:\n\n")
-		
+
 		// Star the password for security
 		var starred string
 		for range m.textVal {
 			starred += "*"
 		}
-		content.WriteString(wizardInputStyle.Render(starred + m.cursor) + "\n")
+		content.WriteString(wizardInputStyle.Render(starred+m.cursor) + "\n")
 		content.WriteString(wizardHelpStyle.Render("Press Enter to start OpenChat • Esc to quit"))
 	}
 
