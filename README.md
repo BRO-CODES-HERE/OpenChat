@@ -12,9 +12,9 @@ OpenChat (originally ChatSSH) is a secure, terminal-based, decentralized chat ap
 
 Get the precompiled executable directly for your operating system:
 
-* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](OpenChat-Win.exe)
-* 🍎 **macOS:** [Download OpenChat-Mac.zip (Apple Silicon & Intel)](OpenChat-Mac.zip)
-* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](OpenChat-linux)
+* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-Win.exe)
+* 🍎 **macOS:** [Download OpenChat-Mac.zip (Apple Silicon & Intel)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-Mac.zip)
+* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.0.2/OpenChat-linux)
 
 ---
 
