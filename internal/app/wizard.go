@@ -122,15 +122,35 @@ func (m wizardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "up", "k":
+		case "up":
 			if !m.isTextInputStep() {
 				m.activeOpt = 0
 			}
 			return m, nil
 
-		case "down", "j":
+		case "down":
 			if !m.isTextInputStep() {
 				m.activeOpt = 1
+			}
+			return m, nil
+
+		case "k":
+			if !m.isTextInputStep() {
+				m.activeOpt = 0
+				return m, nil
+			}
+			if len(msg.Runes) > 0 {
+				m.textVal += string(msg.Runes)
+			}
+			return m, nil
+
+		case "j":
+			if !m.isTextInputStep() {
+				m.activeOpt = 1
+				return m, nil
+			}
+			if len(msg.Runes) > 0 {
+				m.textVal += string(msg.Runes)
 			}
 			return m, nil
 
