@@ -52,10 +52,12 @@
                 <span class="badge-text">v1.0.2 Now Available</span>
             </div>
             <h1 class="hero-title">Secure Chat directly from your <span class="highlight">Terminal</span></h1>
-            <p class="hero-subtitle">An elegant, terminal-based messaging tool powered by SSH cryptographic handshakes
-                and libp2p NAT traversal. Connect securely with friends across firewalls—no setup required.</p>
-
+            <p class="hero-subtitle">An elegant, terminal-based messaging tool powered by SSH cryptographic handshakes and libp2p NAT traversal. Connect securely with friends across firewalls—no setup required.</p>
             <div class="download-container">
+                <div id="file-protocol-warning" class="warning-banner" style="display: none;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    <span><strong>Security Warning:</strong> Your browser has blocked downloading this executable via the <code>file://</code> protocol. Please copy/run <strong>OpenChat-Win.exe</strong> directly from the project root folder instead of clicking this download button.</span>
+                </div>
                 <!-- OS Dynamic Download Button -->
                 <a href="#" id="primary-download-btn" class="glow-button">
                     <span class="btn-icon-wrapper"><i class="fa-solid fa-download"></i></span>
@@ -70,9 +72,8 @@
                     <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Win.exe" class="platform-link" download>
                         <i class="fa-brands fa-windows"></i> Windows (.exe)
                     </a>
-                    <a href="../OpenChat-Mac.zip" class="platform-link" download>
-                    <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac" class="platform-link" download>
-                        <i class="fa-brands fa-apple"></i> macOS (Intel/M-series)
+                    <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac.zip" class="platform-link" download>
+                        <i class="fa-brands fa-apple"></i> macOS (.zip)
                     </a>
                     <a href="https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-linux" class="platform-link" download>
                         <i class="fa-brands fa-linux"></i> Linux

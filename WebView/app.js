@@ -22,8 +22,7 @@ function detectAndSetupDownload() {
         iconClass = "fa-brands fa-windows";
     } else if (platform.indexOf("Mac") !== -1 || userAgent.indexOf("Macintosh") !== -1) {
         detectedOS = "macOS (Apple Silicon / Intel)";
-        downloadPath = "../OpenChat-Mac.zip";
-        downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac";
+        downloadPath = "https://raw.githubusercontent.com/BRO-CODES-HERE/OpenChat/main/OpenChat-Mac.zip";
         iconClass = "fa-brands fa-apple";
     } else if (platform.indexOf("Linux") !== -1 || userAgent.indexOf("Linux") !== -1) {
         detectedOS = "Linux (Binary)";
@@ -41,6 +40,14 @@ function detectAndSetupDownload() {
         const iconEl = downloadBtn.querySelector(".btn-icon-wrapper i");
         if (iconEl) {
             iconEl.className = iconClass;
+        }
+    }
+
+    // Check if running locally on file:// protocol
+    if (window.location.protocol === 'file:') {
+        const warningEl = document.getElementById("file-protocol-warning");
+        if (warningEl) {
+            warningEl.style.display = "flex";
         }
     }
 }
