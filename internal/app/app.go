@@ -201,6 +201,9 @@ func (a *App) startClient(ctx context.Context) (string, error) {
 			conn, err = node.DialSSH(ctx, a.opts.Addr)
 		} else {
 			host, port := splitHostPort(a.opts.Addr)
+			if port == 2222 {
+				port = 4001
+			}
 			conn, err = node.DialPeerByIP(ctx, host, port)
 		}
 		if err != nil {

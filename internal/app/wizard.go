@@ -2,6 +2,7 @@ package app
 
 import (
 	"errors"
+	"net"
 	"os"
 	"os/user"
 	"strings"
@@ -128,9 +129,29 @@ func (m wizardModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return m, nil
 
-		case "down", "j":
+		case "down":
 			if !m.isTextInputStep() {
 				m.activeOpt = 1
+			}
+			return m, nil
+
+		case "k":
+			if !m.isTextInputStep() {
+				m.activeOpt = 0
+				return m, nil
+			}
+			if len(msg.Runes) > 0 {
+				m.textVal += string(msg.Runes)
+			}
+			return m, nil
+
+		case "j":
+			if !m.isTextInputStep() {
+				m.activeOpt = 1
+				return m, nil
+			}
+			if len(msg.Runes) > 0 {
+				m.textVal += string(msg.Runes)
 			}
 			return m, nil
 
@@ -183,6 +204,16 @@ func (m wizardModel) nextStep() (tea.Model, tea.Cmd) {
 		m.address = strings.TrimSpace(m.textVal)
 		if m.address == "" {
 			m.address = "127.0.0.1:2222"
+		} else {
+			if _, _, err := net.SplitHostPort(m.address); err != nil {
+				// No port was specified. Append default port :2222
+				if !strings.HasPrefix(m.address, "[") && strings.Contains(m.address, ":") {
+					// IPv6 address
+					m.address = "[" + m.address + "]:2222"
+				} else {
+					m.address = m.address + ":2222"
+				}
+			}
 		}
 		m.step = stepP2P
 		m.activeOpt = 1 // default to direct TCP

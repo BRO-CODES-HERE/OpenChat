@@ -17,10 +17,16 @@ func main() {
 				os.Exit(0)
 			}
 			fmt.Fprintf(os.Stderr, "setup wizard error: %v\n", err)
+			fmt.Println("\nPress Enter to exit...")
+			var temp string
+			_, _ = fmt.Scanln(&temp)
 			os.Exit(1)
 		}
 		if err := app.Run(opts); err != nil {
-			fmt.Fprintf(os.Stderr, "chatssh: %v\n", err)
+			fmt.Fprintf(os.Stderr, "\nchatssh error: %v\n", err)
+			fmt.Println("\nPress Enter to exit...")
+			var temp string
+			_, _ = fmt.Scanln(&temp)
 			os.Exit(1)
 		}
 		return
