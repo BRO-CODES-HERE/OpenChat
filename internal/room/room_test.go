@@ -19,7 +19,7 @@ func (m *mockConn) Close() error { return nil }
 
 func TestRoomHost_AddClient(t *testing.T) {
 	hub := chat.NewHub()
-	host := room.NewHost("test-room", hub)
+	host := room.NewHost("test-room", hub, "alice")
 
 	// Subscribe to local hub to verify updates
 	sub := hub.Subscribe()

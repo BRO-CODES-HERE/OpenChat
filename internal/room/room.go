@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"strings"
 	"sync"
+	"time"
 
 	"github.com/BRO-CODES-HERE/OpenChat/internal/chat"
 	"github.com/BRO-CODES-HERE/OpenChat/internal/tui"
@@ -12,10 +14,11 @@ import (
 
 // Host manages a star-topology room and broadcasts messages to all peers.
 type Host struct {
-	mu      sync.RWMutex
-	name    string
-	hub     *chat.Hub
-	clients map[string]*Client
+	mu       sync.RWMutex
+	name     string
+	hub      *chat.Hub
+	clients  map[string]*Client
+	HostUser string
 }
 
 // Client represents one connected peer in a room.
@@ -25,11 +28,12 @@ type Client struct {
 }
 
 // NewHost creates a room host.
-func NewHost(name string, hub *chat.Hub) *Host {
+func NewHost(name string, hub *chat.Hub, hostUser string) *Host {
 	return &Host{
-		name:    name,
-		hub:     hub,
-		clients: make(map[string]*Client),
+		name:     name,
+		hub:      hub,
+		clients:  make(map[string]*Client),
+		HostUser: hostUser,
 	}
 }
 
@@ -83,6 +87,106 @@ func (h *Host) readLoop(id string, conn io.ReadWriteCloser) {
 		if msg.Sender == "" {
 			msg.Sender = id
 		}
+
+		// Intercept /users
+		if msg.Content == "/users" {
+			h.mu.RLock()
+			var active []string
+			if h.HostUser != "" {
+				active = append(active, h.HostUser+" (host)")
+			} else {
+				active = append(active, "host (host)")
+			}
+			for cid := range h.clients {
+				active = append(active, cid)
+			}
+			h.mu.RUnlock()
+
+			reply := chat.Message{
+				Sender:    "system",
+				Timestamp: time.Now(),
+				Content:   fmt.Sprintf("Active users: %s", strings.Join(active, ", ")),
+			}
+			line := tui.FormatMessage(reply) + "\n"
+			_, _ = io.WriteString(conn, line)
+			continue
+		}
+
+		// Intercept /dm
+		if strings.HasPrefix(msg.Content, "/dm ") {
+			parts := strings.SplitN(msg.Content, " ", 3)
+			if len(parts) < 3 {
+				reply := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   "Usage: /dm <username> <message>",
+				}
+				line := tui.FormatMessage(reply) + "\n"
+				_, _ = io.WriteString(conn, line)
+				continue
+			}
+			target := parts[1]
+			dmMsg := parts[2]
+
+			// Send to target if it exists
+			h.mu.RLock()
+			var targetConn io.ReadWriteCloser
+			if targetClient, ok := h.clients[target]; ok {
+				targetConn = targetClient.Conn
+			}
+			h.mu.RUnlock()
+
+			// Check if target is host
+			if target == h.HostUser {
+				// Send to host's local TUI hub
+				h.hub.Publish(chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM from %s]: %s", id, dmMsg),
+				})
+
+				// Send confirmation back to sender
+				reply := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM to %s]: %s", target, dmMsg),
+				}
+				line := tui.FormatMessage(reply) + "\n"
+				_, _ = io.WriteString(conn, line)
+				continue
+			}
+
+			if targetConn != nil {
+				// Write to target
+				replyToTarget := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM from %s]: %s", id, dmMsg),
+				}
+				lineTarget := tui.FormatMessage(replyToTarget) + "\n"
+				_, _ = io.WriteString(targetConn, lineTarget)
+
+				// Write confirmation back to sender
+				replyToSender := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM to %s]: %s", target, dmMsg),
+				}
+				lineSender := tui.FormatMessage(replyToSender) + "\n"
+				_, _ = io.WriteString(conn, lineSender)
+			} else {
+				// User not found
+				reply := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("User '%s' not found.", target),
+				}
+				line := tui.FormatMessage(reply) + "\n"
+				_, _ = io.WriteString(conn, line)
+			}
+			continue
+		}
+
 		h.hub.Publish(msg)
 		h.Broadcast(msg, id)
 	}
@@ -126,4 +230,25 @@ func (h *Host) AnnounceLeave(id string) {
 	}
 	h.hub.Publish(msg)
 	h.Broadcast(msg, "")
+}
+
+// ClientIDs returns a list of active client usernames.
+func (h *Host) ClientIDs() []string {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	var ids []string
+	for id := range h.clients {
+		ids = append(ids, id)
+	}
+	return ids
+}
+
+// GetClientConn retrieves the connection writer for a specific client.
+func (h *Host) GetClientConn(id string) io.ReadWriteCloser {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	if c, ok := h.clients[id]; ok {
+		return c.Conn
+	}
+	return nil
 }

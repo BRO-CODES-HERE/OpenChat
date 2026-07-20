@@ -1,44 +1,44 @@
-# OpenChat � Feature Roadmap
+# OpenChat — Feature Roadmap
 
-A curated list of planned and proposed features to make OpenChat more powerful, user-friendly, and fun. Contributions are welcome � pick any feature and open a PR!
+A curated list of planned and proposed features to make OpenChat more powerful, user-friendly, and fun. Contributions are welcome — pick any feature and open a PR!
 
 ---
 
-## ?? Quick Wins � Easy to Build
+## 🚀 Quick Wins — Easy to Build
 
-### ?? TUI & UX Polish
+### 🎨 TUI & UX Polish
 
 | Feature | Description |
 |---------|-------------|
-| **Scrollable message history** | Use `? / ?` arrow keys to scroll back through previous messages. Currently only a fixed window is shown. |
+| **Scrollable message history** | Use `↑ / ↓` arrow keys to scroll back through previous messages. Currently only a fixed window is shown. |
 | **Username color persistence** | Save a user's assigned color so the same username always appears in the same color across sessions. |
 | **Mention highlights** | Highlight and ring the terminal bell when your username is mentioned (`@alice`). |
 | **Timestamp toggle** | Press `T` to show or hide message timestamps in the feed. |
 | **Unread message counter** | Display a badge or indicator when new messages arrive while the user is typing. |
 
-### ?? Input Improvements
+### ⌨️ Input Improvements
 
 | Feature | Description |
 |---------|-------------|
 | **In-chat commands** | Support slash commands: `/clear`, `/users`, `/quit`, `/help`, `/dm <user> <msg>`. |
-| **Edit last message** | Press `?` to recall and edit the last sent message before re-sending. |
+| **Edit last message** | Press `↑` to recall and edit the last sent message before re-sending. |
 | **Multi-line messages** | Use `Shift+Enter` to insert a newline before sending a longer message. |
 
 ---
 
-## ??? Security & Privacy
+## 🛡️ Security & Privacy
 
 | Feature | Description |
 |---------|-------------|
 | **Room passwords** | Optional passphrase required to join a room, enforced during the SSH handshake. |
 | **Message expiry / TTL** | Auto-delete messages after a configurable time (e.g. 10 minutes, 1 hour). Works in Ghost Mode too. |
-| **Read receipts** | Show `?` (delivered) and `??` (read by all) indicators on messages. |
+| **Read receipts** | Show `✓` (delivered) and `✓✓` (read by all) indicators on messages. |
 | **Identity verification badge** | Display a `verified` or `unverified` badge next to a username based on known public keys. |
 | **Key pinning** | Remember a host's public key fingerprint after first connect and warn on mismatch (TOFU model). |
 
 ---
 
-## ?? Connectivity & Networking
+## 🌐 Connectivity & Networking
 
 | Feature | Description |
 |---------|-------------|
@@ -50,7 +50,7 @@ A curated list of planned and proposed features to make OpenChat more powerful, 
 
 ---
 
-## ?? Chat Features
+## 💬 Chat Features
 
 | Feature | Description |
 |---------|-------------|
@@ -64,11 +64,11 @@ A curated list of planned and proposed features to make OpenChat more powerful, 
 
 ---
 
-## ??? Launcher & OS Integration
+## 🖥️ Launcher & OS Integration
 
 | Feature | Description |
 |---------|-------------|
-| **Config file support** | Read settings from `~/.chatssh/config.toml` � preferred username, default room, theme, storage mode, etc. |
+| **Config file support** | Read settings from `~/.chatssh/config.toml` — preferred username, default room, theme, storage mode, etc. |
 | **System tray icon** | Run OpenChat as a background daemon with a system tray icon on Windows and macOS. |
 | **Desktop notifications** | Fire an OS-level toast notification when a new message arrives while the app is in the background. |
 | **Web UI companion** | A lightweight local HTTP server (e.g. `:8080`) that renders the chat in a browser as a fallback. |
@@ -76,38 +76,38 @@ A curated list of planned and proposed features to make OpenChat more powerful, 
 
 ---
 
-## ?? Fun & Viral Features
+## 🎮 Fun & Viral Features
 
 | Feature | Description |
 |---------|-------------|
 | **ASCII art welcome banner** | Display a random cool ASCII art banner on connect instead of plain text. |
 | **Theme switcher** | Built-in color themes: Dracula, Nord, Gruvbox, Catppuccin, Tokyo Night. Switch with `/theme <name>`. |
 | **User list sidebar** | A live side panel showing all connected users, their status, and peer counts. |
-| **Custom status messages** | Set a short status like `/status ?? coding` that other users can see next to your name. |
-| **Confetti / fun reactions** | Trigger a terminal confetti animation when someone reacts with ??. |
+| **Custom status messages** | Set a short status like `/status 🎵 coding` that other users can see next to your name. |
+| **Confetti / fun reactions** | Trigger a terminal confetti animation when someone reacts with 🎉. |
 
 ---
 
-## ?? Priority Matrix
+## 📊 Priority Matrix
 
 | Priority | Feature | Effort | Impact |
 |----------|---------|--------|--------|
-| ?? **High** | Scrollable message history | Low | High |
-| ?? **High** | `/help`, `/users`, `/clear` commands | Low | High |
-| ?? **High** | Auto-reconnect on drop | Medium | High |
-| ?? **High** | Config file (`config.toml`) | Medium | High |
-| ? **Medium** | Typing indicators | Medium | Medium |
-| ? **Medium** | LAN room discovery (mDNS) | Medium | High |
-| ? **Medium** | QR code room invite | Low | Medium |
-| ? **Medium** | Theme switcher | Low | Medium |
-| ? **Medium** | Desktop notifications | Medium | Medium |
-| ?? **Stretch** | File transfer | High | High |
-| ?? **Stretch** | Web UI companion | High | Medium |
-| ?? **Stretch** | Bot / webhook support | High | Medium |
+| 🔥 **High** | Scrollable message history | Low | High |
+| 🔥 **High** | `/help`, `/users`, `/clear` commands | Low | High |
+| 🔥 **High** | Auto-reconnect on drop | Medium | High |
+| 🔥 **High** | Config file (`config.toml`) | Medium | High |
+| ⭐ **Medium** | Typing indicators | Medium | Medium |
+| ⭐ **Medium** | LAN room discovery (mDNS) | Medium | High |
+| ⭐ **Medium** | QR code room invite | Low | Medium |
+| ⭐ **Medium** | Theme switcher | Low | Medium |
+| ⭐ **Medium** | Desktop notifications | Medium | Medium |
+| 🧪 **Stretch** | File transfer | High | High |
+| 🧪 **Stretch** | Web UI companion | High | Medium |
+| 🧪 **Stretch** | Bot / webhook support | High | Medium |
 
 ---
 
-## ?? Contributing a Feature
+## 🤝 Contributing a Feature
 
 1. Pick a feature from this list (or propose your own).
 2. Open an Issue to discuss the design before coding.

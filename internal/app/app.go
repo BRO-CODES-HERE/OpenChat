@@ -109,6 +109,7 @@ func Run(opts Options) error {
 		Status:       status,
 		Hub:          hub,
 		Store:        store,
+		RoomHost:     a.roomHost,
 		VerifyScreen: verifyScreen,
 		OnQuit: func() {
 			a.shutdown()
@@ -123,7 +124,7 @@ func (a *App) startServer(ctx context.Context) error {
 		if name == "" {
 			name = "public"
 		}
-		roomHost = room.NewHost(name, a.hub)
+		roomHost = room.NewHost(name, a.hub, a.opts.LocalUser)
 		a.roomHost = roomHost
 		a.hub.Publish(chat.Message{
 			Sender:  "system:count",

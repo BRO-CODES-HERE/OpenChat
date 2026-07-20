@@ -2,6 +2,7 @@ package tui
 
 import (
 	"fmt"
+	"io"
 	"strings"
 	"time"
 
@@ -76,6 +77,12 @@ func (m Model) getUsernameStyle(username string) lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true)
 }
 
+// RoomHost defines the interface required by the TUI to query room status and route DMs.
+type RoomHost interface {
+	ClientIDs() []string
+	GetClientConn(id string) io.ReadWriteCloser
+}
+
 // Config configures the chat TUI.
 type Config struct {
 	Title        string
@@ -83,6 +90,7 @@ type Config struct {
 	Status       string
 	Hub          *chat.Hub
 	Store        *storage.Store
+	RoomHost     RoomHost
 	OnQuit       func()
 	VerifyScreen string
 }
@@ -102,6 +110,7 @@ type Model struct {
 	showTimestamps bool
 	scrollOffset   int
 	unreadCount    int
+	lastSent       string
 }
 
 type msgReceived struct{ msg chat.Message }
@@ -197,14 +206,33 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cfg.OnQuit()
 			}
 			return m, tea.Quit
-		case "enter":
+				case "enter":
 			line := strings.TrimSpace(m.input)
-			if line != "" {
-				m.cfg.Hub.Send(m.cfg.LocalUser, line)
-				m.input = ""
-			}
+			m.input = ""
 			m.scrollOffset = 0
 			m.unreadCount = 0
+
+			if line != "" {
+				m.lastSent = line
+				if strings.HasPrefix(line, "/") {
+					cmdMsg, isLocal := m.handleSlashCommand(line)
+					if isLocal {
+						if cmdMsg.Content != "" {
+							m.messages = append(m.messages, cmdMsg)
+						}
+						return m, nil
+					}
+				}
+				m.cfg.Hub.Send(m.cfg.LocalUser, line)
+			}
+		case "ctrl+n", "alt+enter":
+			m.input += "\n"
+			return m, nil
+		case "up":
+			if m.input == "" && m.lastSent != "" {
+				m.input = m.lastSent
+			}
+			return m, nil
 		case "backspace":
 			runes := []rune(m.input)
 			if len(runes) > 0 {
@@ -246,6 +274,108 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	return m, nil
+}
+
+// handleSlashCommand parses and processes in-chat slash commands.
+// Returns a status message (if any) and a boolean indicating if the command was handled locally.
+func (m *Model) handleSlashCommand(line string) (chat.Message, bool) {
+	parts := strings.SplitN(line, " ", 3)
+	cmd := parts[0]
+
+	switch cmd {
+	case "/clear":
+		m.messages = nil
+		return chat.Message{
+			Sender:    "system",
+			Timestamp: time.Now(),
+			Content:   "Console cleared.",
+		}, true
+
+	case "/quit":
+		m.quitting = true
+		if m.cfg.OnQuit != nil {
+			m.cfg.OnQuit()
+		}
+		return chat.Message{}, true
+
+	case "/help":
+		helpText := "Available commands:\n" +
+			"  /help               - Show this help message\n" +
+			"  /clear              - Clear the message screen\n" +
+			"  /quit               - Exit OpenChat\n" +
+			"  /users              - List all active users in the room\n" +
+			"  /dm <user> <msg>    - Send a private message to a user"
+		return chat.Message{
+			Sender:    "system",
+			Timestamp: time.Now(),
+			Content:   helpText,
+		}, true
+
+	case "/users":
+		if m.cfg.RoomHost != nil {
+			var active []string
+			active = append(active, m.cfg.LocalUser+" (host)")
+			for _, cid := range m.cfg.RoomHost.ClientIDs() {
+				active = append(active, cid)
+			}
+			return chat.Message{
+				Sender:    "system",
+				Timestamp: time.Now(),
+				Content:   fmt.Sprintf("Active users: %s", strings.Join(active, ", ")),
+			}, true
+		}
+		return chat.Message{}, false
+
+	case "/dm":
+		if len(parts) < 3 {
+			return chat.Message{
+				Sender:    "system",
+				Timestamp: time.Now(),
+				Content:   "Usage: /dm <username> <message>",
+			}, true
+		}
+		target := parts[1]
+		dmMsg := parts[2]
+
+		if m.cfg.RoomHost != nil {
+			if target == m.cfg.LocalUser {
+				return chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   "You cannot DM yourself.",
+				}, true
+			}
+			targetConn := m.cfg.RoomHost.GetClientConn(target)
+			if targetConn != nil {
+				replyToTarget := chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM from %s]: %s", m.cfg.LocalUser, dmMsg),
+				}
+				lineTarget := FormatMessage(replyToTarget) + "\n"
+				_, _ = io.WriteString(targetConn, lineTarget)
+
+				return chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("[DM to %s]: %s", target, dmMsg),
+				}, true
+			} else {
+				return chat.Message{
+					Sender:    "system",
+					Timestamp: time.Now(),
+					Content:   fmt.Sprintf("User '%s' not found.", target),
+				}, true
+			}
+		}
+		return chat.Message{}, false
+	}
+
+	return chat.Message{
+		Sender:    "system",
+		Timestamp: time.Now(),
+		Content:   fmt.Sprintf("Unknown command: %s. Type /help for a list of commands.", cmd),
+	}, true
 }
 
 // SetVerification shows a host-key verification prompt.
