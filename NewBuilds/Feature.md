@@ -6,7 +6,7 @@ A curated list of planned and proposed features to make OpenChat more powerful, 
 
 ## 🚀 Quick Wins — Easy to Build
 
-### 🎨 TUI & UX Polish
+### 🎨 TUI & UX Polish [DONE]
 
 | Feature | Description |
 |---------|-------------|
@@ -16,7 +16,7 @@ A curated list of planned and proposed features to make OpenChat more powerful, 
 | **Timestamp toggle** | Press `T` to show or hide message timestamps in the feed. |
 | **Unread message counter** | Display a badge or indicator when new messages arrive while the user is typing. |
 
-### ⌨️ Input Improvements
+### ⌨️ Input Improvements [DONE]
 
 | Feature | Description |
 |---------|-------------|
