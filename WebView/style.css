@@ -665,6 +665,16 @@ nav a:hover {
     box-shadow: 0 0 30px rgba(249, 115, 22, 0.08);
 }
 
+.cyan-hover:hover {
+    border-color: rgba(0, 243, 255, 0.3);
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.08);
+}
+
+.purple-hover:hover {
+    border-color: rgba(127, 0, 255, 0.3);
+    box-shadow: 0 0 30px rgba(127, 0, 255, 0.08);
+}
+
 /* Quickstart / Connect */
 .quickstart {
     padding: 100px 0;
@@ -672,8 +682,8 @@ nav a:hover {
 
 .quickstart-split {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 40px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 30px;
 }
 
 .quickstart-box {

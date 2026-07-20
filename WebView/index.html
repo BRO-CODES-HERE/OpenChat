@@ -211,24 +211,36 @@
             </div>
 
             <div class="quickstart-split">
-                <div class="quickstart-box">
-                    <h4>1. Start a Room (Host)</h4>
-                    <p>Binds to all interfaces and starts listening for client handshakes:</p>
-                    <div class="code-wrapper">
-                        <pre><code>go run .\cmd\chatssh --mode server --addr :2222 --user alice</code></pre>
-                        <button class="copy-btn" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                <div class="quickstart-box glass-panel orange-hover">
+                    <div class="step-icon-wrapper">
+                        <i class="fa-solid fa-download" style="color: var(--orange); font-size: 1.8rem; margin-bottom: 16px;"></i>
                     </div>
-                    <span class="tip">Check your status bar at the bottom for your local IP address!</span>
+                    <h4>1. Download Binary</h4>
+                    <p>Grab the precompiled executable file designed for your operating system from the downloads section above.</p>
                 </div>
 
-                <div class="quickstart-box">
-                    <h4>2. Connect (Client)</h4>
-                    <p>Dial the server using the host's IP address (e.g. 172.29.160.1):</p>
-                    <div class="code-wrapper">
-                        <pre><code>go run .\cmd\chatssh --connect "172.29.160.1:2222" --user bob</code></pre>
-                        <button class="copy-btn" onclick="copyCode(this)"><i class="fa-regular fa-copy"></i></button>
+                <div class="quickstart-box glass-panel green-hover">
+                    <div class="step-icon-wrapper">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: var(--green); font-size: 1.8rem; margin-bottom: 16px;"></i>
                     </div>
-                    <span class="tip">Windows users: always keep the address wrapped in quotes!</span>
+                    <h4>2. Launch Wizard</h4>
+                    <p>Double-click the binary or run it directly. The terminal setup wizard launches automatically to configure your options.</p>
+                </div>
+
+                <div class="quickstart-box glass-panel cyan-hover">
+                    <div class="step-icon-wrapper">
+                        <i class="fa-solid fa-network-wired" style="color: var(--cyan); font-size: 1.8rem; margin-bottom: 16px;"></i>
+                    </div>
+                    <h4>3. Share your IP</h4>
+                    <p>If hosting a room, your local IP address is displayed on the bottom status bar. Copy and send it to your peers.</p>
+                </div>
+
+                <div class="quickstart-box glass-panel purple-hover">
+                    <div class="step-icon-wrapper">
+                        <i class="fa-solid fa-circle-nodes" style="color: var(--purple); font-size: 1.8rem; margin-bottom: 16px;"></i>
+                    </div>
+                    <h4>4. Get Connected</h4>
+                    <p>If connecting as a peer, select Client Mode in the setup wizard, input the shared IP, and you are instantly in the chat!</p>
                 </div>
             </div>
         </div>
