@@ -30,17 +30,18 @@ const (
 
 // Store handles message persistence.
 type Store struct {
-	mode      Mode
-	mu        sync.Mutex
-	db        *sql.DB
-	gcm       cipher.AEAD
-	ghostMsgs []chat.Message
-	passphrase string
+	mode        Mode
+	mu          sync.Mutex
+	db          *sql.DB
+	gcm         cipher.AEAD
+	ghostMsgs   []chat.Message
+	ghostColors map[string]int
+	passphrase  string
 }
 
 // Open creates a store for the given mode.
 func Open(mode Mode, passphrase string) (*Store, error) {
-	s := &Store{mode: mode, passphrase: passphrase}
+	s := &Store{mode: mode, passphrase: passphrase, ghostColors: make(map[string]int)}
 	if mode == ModeGhost {
 		return s, nil
 	}
@@ -68,6 +69,13 @@ func (s *Store) initDB(passphrase string) error {
 		sender TEXT NOT NULL,
 		content_enc TEXT NOT NULL,
 		created_at TEXT NOT NULL
+	)`); err != nil {
+		return err
+	}
+
+	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS user_colors (
+		username TEXT PRIMARY KEY,
+		color_index INTEGER NOT NULL
 	)`); err != nil {
 		return err
 	}
@@ -218,4 +226,57 @@ func ModeName(m Mode) string {
 	default:
 		return "Unknown"
 	}
+}
+
+// SaveUserColor associates a username with a color index.
+func (s *Store) SaveUserColor(username string, colorIndex int) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.mode == ModeGhost {
+		if s.ghostColors == nil {
+			s.ghostColors = make(map[string]int)
+		}
+		s.ghostColors[username] = colorIndex
+		return nil
+	}
+
+	if s.db == nil {
+		return fmt.Errorf("database not initialized")
+	}
+
+	_, err := s.db.Exec(
+		`INSERT INTO user_colors (username, color_index) VALUES (?, ?)
+		 ON CONFLICT(username) DO UPDATE SET color_index = excluded.color_index`,
+		username, colorIndex,
+	)
+	return err
+}
+
+// GetUserColor retrieves the associated color index for a username.
+func (s *Store) GetUserColor(username string) (int, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if s.mode == ModeGhost {
+		if s.ghostColors == nil {
+			s.ghostColors = make(map[string]int)
+		}
+		color, ok := s.ghostColors[username]
+		if !ok {
+			return -1, sql.ErrNoRows
+		}
+		return color, nil
+	}
+
+	if s.db == nil {
+		return -1, fmt.Errorf("database not initialized")
+	}
+
+	var colorIndex int
+	err := s.db.QueryRow(`SELECT color_index FROM user_colors WHERE username = ?`, username).Scan(&colorIndex)
+	if err != nil {
+		return -1, err
+	}
+	return colorIndex, nil
 }

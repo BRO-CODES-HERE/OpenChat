@@ -8,6 +8,7 @@ import (
 	"github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/BRO-CODES-HERE/OpenChat/internal/chat"
+	"github.com/BRO-CODES-HERE/OpenChat/internal/storage"
 )
 
 var (
@@ -47,40 +48,60 @@ var (
 	}
 )
 
-func getUsernameStyle(username string) lipgloss.Style {
+func (m Model) getUsernameStyle(username string) lipgloss.Style {
 	if username == "system" {
 		return lipgloss.NewStyle().Foreground(lipgloss.Color("220")).Italic(true)
 	}
-	var hash int
-	for _, char := range username {
-		hash += int(char)
+
+	colorIndex := -1
+	if m.cfg.Store != nil {
+		if idx, err := m.cfg.Store.GetUserColor(username); err == nil {
+			colorIndex = idx
+		}
 	}
-	color := userColors[hash%len(userColors)]
+
+	if colorIndex < 0 || colorIndex >= len(userColors) {
+		var hash int
+		for _, char := range username {
+			hash += int(char)
+		}
+		colorIndex = hash % len(userColors)
+
+		if m.cfg.Store != nil {
+			_ = m.cfg.Store.SaveUserColor(username, colorIndex)
+		}
+	}
+
+	color := userColors[colorIndex]
 	return lipgloss.NewStyle().Foreground(lipgloss.Color(color)).Bold(true)
 }
 
 // Config configures the chat TUI.
 type Config struct {
-	Title            string
-	LocalUser        string
-	Status           string
-	Hub              *chat.Hub
-	OnQuit           func()
-	VerifyScreen     string
+	Title        string
+	LocalUser    string
+	Status       string
+	Hub          *chat.Hub
+	Store        *storage.Store
+	OnQuit       func()
+	VerifyScreen string
 }
 
 // Model is the Bubble Tea chat model.
 type Model struct {
-	cfg       Config
-	messages  []chat.Message
-	input     string
-	width     int
-	height    int
-	quitting  bool
-	verifyMsg string
-	awaiting  bool
-	sub       <-chan chat.Message
-	peerCount int
+	cfg            Config
+	messages       []chat.Message
+	input          string
+	width          int
+	height         int
+	quitting       bool
+	verifyMsg      string
+	awaiting       bool
+	sub            <-chan chat.Message
+	peerCount      int
+	showTimestamps bool
+	scrollOffset   int
+	unreadCount    int
 }
 
 type msgReceived struct{ msg chat.Message }
@@ -89,9 +110,12 @@ type msgReceived struct{ msg chat.Message }
 // New creates a chat TUI model.
 func New(cfg Config) Model {
 	m := Model{
-		cfg:      cfg,
-		messages: cfg.Hub.Messages(),
-		sub:      cfg.Hub.Subscribe(),
+		cfg:            cfg,
+		messages:       cfg.Hub.Messages(),
+		sub:            cfg.Hub.Subscribe(),
+		showTimestamps: true,
+		scrollOffset:   0,
+		unreadCount:    0,
 	}
 	if cfg.VerifyScreen != "" {
 		m.verifyMsg = cfg.VerifyScreen
@@ -132,7 +156,23 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, m.listen()
 		}
 		m.messages = append(m.messages, msg.msg)
-		return m, m.listen()
+
+		var cmds []tea.Cmd
+		cmds = append(cmds, m.listen())
+
+		if m.scrollOffset > 0 {
+			m.unreadCount++
+		}
+
+		contentLower := strings.ToLower(msg.msg.Content)
+		mentionLower := strings.ToLower("@" + m.cfg.LocalUser)
+		if msg.msg.Sender != m.cfg.LocalUser && strings.Contains(contentLower, mentionLower) {
+			cmds = append(cmds, func() tea.Msg {
+				fmt.Print("\a")
+				return nil
+			})
+		}
+		return m, tea.Batch(cmds...)
 
 	case tea.KeyMsg:
 		if m.awaiting {
@@ -163,11 +203,41 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.cfg.Hub.Send(m.cfg.LocalUser, line)
 				m.input = ""
 			}
+			m.scrollOffset = 0
+			m.unreadCount = 0
 		case "backspace":
 			runes := []rune(m.input)
 			if len(runes) > 0 {
 				m.input = string(runes[:len(runes)-1])
 			}
+		case "ctrl+t":
+			m.showTimestamps = !m.showTimestamps
+			return m, nil
+		case "pageup":
+			feedHeight := m.height - 6
+			if feedHeight < 4 {
+				feedHeight = 4
+			}
+			maxScroll := len(m.messages) - feedHeight
+			if maxScroll < 0 {
+				maxScroll = 0
+			}
+			m.scrollOffset += feedHeight / 2
+			if m.scrollOffset > maxScroll {
+				m.scrollOffset = maxScroll
+			}
+			return m, nil
+		case "pagedown":
+			feedHeight := m.height - 6
+			if feedHeight < 4 {
+				feedHeight = 4
+			}
+			m.scrollOffset -= feedHeight / 2
+			if m.scrollOffset < 0 {
+				m.scrollOffset = 0
+				m.unreadCount = 0
+			}
+			return m, nil
 		default:
 			if len(msg.Runes) > 0 {
 				m.input += string(msg.Runes)
@@ -200,34 +270,56 @@ func (m Model) View() string {
 	}
 
 	var lines []string
-	start := 0
-	if len(m.messages) > feedHeight {
-		start = len(m.messages) - feedHeight
+	start := len(m.messages) - feedHeight - m.scrollOffset
+	if start < 0 {
+		start = 0
+	}
+	end := len(m.messages) - m.scrollOffset
+	if end < 0 {
+		end = 0
+	}
+	if end > len(m.messages) {
+		end = len(m.messages)
 	}
 
 	tsStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 	sepStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("238"))
 	msgContentStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("253"))
+	mentionHighlightStyle := lipgloss.NewStyle().
+		Background(lipgloss.Color("226")). // Yellow
+		Foreground(lipgloss.Color("16")).  // Black text
+		Bold(true)
 
-	for _, msg := range m.messages[start:] {
-		ts := msg.Timestamp.Format("15:04:05")
-		tsStr := tsStyle.Render("[" + ts + "]")
+	for _, msg := range m.messages[start:end] {
+		var tsStr string
+		if m.showTimestamps {
+			ts := msg.Timestamp.Format("15:04:05")
+			tsStr = tsStyle.Render("["+ts+"]") + "  "
+		}
 
+		var lineStr string
 		if msg.Sender == "system" {
 			sysContent := lipgloss.NewStyle().Foreground(lipgloss.Color("246")).Italic(true).Render("★ " + msg.Content)
-			lines = append(lines, fmt.Sprintf("%s  %s", tsStr, sysContent))
-			continue
+			lineStr = fmt.Sprintf("%s%s", tsStr, sysContent)
+		} else {
+			senderStyle := m.getUsernameStyle(msg.Sender)
+			if msg.Sender == m.cfg.LocalUser {
+				senderStyle = senderStyle.Underline(true)
+			}
+			senderStr := senderStyle.Render(msg.Sender)
+			separator := sepStyle.Render("│")
+			contentStr := msgContentStyle.Render(msg.Content)
+
+			lineStr = fmt.Sprintf("%s%s %s %s", tsStr, senderStr, separator, contentStr)
 		}
 
-		senderStyle := getUsernameStyle(msg.Sender)
-		if msg.Sender == m.cfg.LocalUser {
-			senderStyle = senderStyle.Underline(true)
+		contentLower := strings.ToLower(msg.Content)
+		mentionLower := strings.ToLower("@" + m.cfg.LocalUser)
+		if msg.Sender != m.cfg.LocalUser && strings.Contains(contentLower, mentionLower) {
+			lineStr = mentionHighlightStyle.Render(lineStr)
 		}
-		senderStr := senderStyle.Render(msg.Sender)
-		separator := sepStyle.Render("│")
-		contentStr := msgContentStyle.Render(msg.Content)
 
-		lines = append(lines, fmt.Sprintf("%s  %s %s %s", tsStr, senderStr, separator, contentStr))
+		lines = append(lines, lineStr)
 	}
 	if len(lines) == 0 {
 		lines = append(lines, lipgloss.NewStyle().Foreground(lipgloss.Color("241")).Render("No messages yet. Type below and press Enter."))
@@ -298,6 +390,24 @@ func (m Model) View() string {
 			Bold(true).
 			Padding(0, 1)
 		statusBlocks = append(statusBlocks, style.Render(fmt.Sprintf("peers:%d", m.peerCount)))
+	}
+
+	if m.scrollOffset > 0 {
+		scrollStyle := lipgloss.NewStyle().
+			Background(lipgloss.Color("99")). // Purple
+			Foreground(lipgloss.Color("255")).
+			Bold(true).
+			Padding(0, 1)
+		statusBlocks = append(statusBlocks, scrollStyle.Render(fmt.Sprintf("history:-%d", m.scrollOffset)))
+	}
+
+	if m.unreadCount > 0 {
+		unreadStyle := lipgloss.NewStyle().
+			Background(lipgloss.Color("196")). // Red
+			Foreground(lipgloss.Color("255")).
+			Bold(true).
+			Padding(0, 1)
+		statusBlocks = append(statusBlocks, unreadStyle.Render(fmt.Sprintf("↓ %d unread", m.unreadCount)))
 	}
 	status := lipgloss.JoinHorizontal(lipgloss.Top, statusBlocks...)
 

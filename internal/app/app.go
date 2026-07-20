@@ -108,6 +108,7 @@ func Run(opts Options) error {
 		LocalUser:    opts.LocalUser,
 		Status:       status,
 		Hub:          hub,
+		Store:        store,
 		VerifyScreen: verifyScreen,
 		OnQuit: func() {
 			a.shutdown()
