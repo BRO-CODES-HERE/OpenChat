@@ -14,9 +14,9 @@ With our built-in interactive setup wizard, you no longer need any terminal comm
 
 Get the precompiled executable directly for your operating system:
 
-* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-Win.exe)
-* 🍎 **macOS:** [Download OpenChat-Mac.zip (Apple Silicon & Intel)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-Mac.zip)
-* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.0/OpenChat-linux)
+* 💻 **Windows:** [Download OpenChat-Win.exe (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.2/OpenChat-Win.exe)
+* 🍎 **macOS:** [Download OpenChat-Mac.zip (Apple Silicon & Intel)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.2/OpenChat-Mac.zip)
+* 🐧 **Linux:** [Download OpenChat-linux (64-bit)](https://github.com/BRO-CODES-HERE/OpenChat/releases/download/v1.1.2/OpenChat-linux)
 
 ---
 
